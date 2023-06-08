@@ -1,14 +1,12 @@
 # for speech-to-text
 from extractor import extract_symptoms
 from prediction import predictDisease
-import numpy as np
+from prelim_medication import prelim_medi
+# import numpy as np
 import speech_recognition as sr
 
 # for text-to-speech
 from gtts import gTTS
-
-# for language model
-import transformers
 
 from win32com.client import Dispatch
 
@@ -42,7 +40,7 @@ class ChatBot():
     def text_to_speech(text):
         print("ai --> ",text)
         speak(text)
-        speaker = gTTS(text=text, lang="en", slow=False)
+        speaker = gTTS(text=text )#, lang="kn", slow=False)
 
     def wake_up(self, text):
         return True if self.name in text.lower() else False
@@ -62,7 +60,6 @@ if __name__ == "__main__":
 
         # action diagnosis
         elif "diagnosis" in ai.text:
-            # ai.text_to_speech("Ohh that's sad...")
             ai.text_to_speech('Could you please list the symptoms...')
             ai.speech_to_text()
             while "nothing" not in ai.text:
@@ -71,16 +68,22 @@ if __name__ == "__main__":
                 ai.text_to_speech('Do you experience any more symptoms...')
                 ai.speech_to_text()
             ai.text_to_speech('Please wait for a minute....')
-            sentence = "You might be suffering from "
-            res = sentence + predictDisease(sym[:-1].title())['final_prediction']
+            s1 = "You might be suffering from "
+            s2 = "\nPreliminary medications are "
+            disease = predictDisease(sym[:-1].title())['final_prediction']
+            medication = prelim_medi(disease)
+            res = s1 + disease +s2+medication
+
 
         # respond politely
         elif any(i in ai.text for i in ["thank", "thanks"]):
-            res = np.random.choice(
-                ["you're welcome! I'm here if you need me!"])
+            # ai.text_to_speech("Would you like to have any further assistance")
+            res = "Thank you!!I am here if you need me.."
             start = False
 
         # conversation
         else:
             res = "Sorry....Could you please repeat...."
         ai.text_to_speech(res)
+        
+#end
